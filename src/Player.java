@@ -9,6 +9,15 @@ public class Player {
     private int score;
     private ArrayList<Character> tiles;
 
+    /**
+     * nameless constructor for AI to inherit
+     */
+    public Player(){
+        this.score = 0;
+        this.tiles = new ArrayList<>();
+        this.name = "AI Player";
+    }
+
     public Player(String name){
         this.name = name;
         this.score = 0;
@@ -41,5 +50,9 @@ public class Player {
 
     public void removeTile(char c){
         tiles.remove((Character)c);
+    }
+
+    public void pass(){
+        System.out.println("\n* * * "+this.getName()+" passes this turn. * * *\n");
     }
 }

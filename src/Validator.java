@@ -56,8 +56,9 @@ public class Validator {
                 colsEqual = false;
             }
         }
+        System.out.println(tiles.size());
         //either rows are equal or cols are equal, not both
-        if( ! ( ((!rowsEqual) && colsEqual) || (rowsEqual && (!colsEqual)) || tiles.size()==1 ) ){
+        if( ! ( ((!rowsEqual) && colsEqual) || (rowsEqual && (!colsEqual)) || letterPositions.size()==1 ) ){
             return 2;
         }
 
@@ -128,7 +129,6 @@ public class Validator {
 TODO
 
 1. Score perpendicular words.
-2. Declare winner.
 
 
  */

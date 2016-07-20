@@ -9,13 +9,13 @@ public class Game {
 
     public static boolean firstWord = true;
 
-    public ArrayList<Player> players;
     public TilesBag tilesBag;
     public Board board;
+    public Player p;
+    public AIPlayer AIplayer;
 
     public Game() throws FileNotFoundException{
         this.gameOver = false;
-        this.players = new ArrayList<>();
         this.tilesBag = new TilesBag();
         this.board = new Board();
     }
@@ -81,60 +81,81 @@ public class Game {
         for (LetterPosition L:letterPositions){
             boardCopy[L.position[0]][L.position[1]] = L.letter;
         }
-        String word = "";
-        boolean rowsEqual = true;
-        boolean colsEqual = true;
-        int row1 = letterPositions.get(0).position[0];
-        int col1 = letterPositions.get(0).position[1];
-        for(LetterPosition L:letterPositions){
-            if(!(L.position[0]==row1)){
-                rowsEqual = false;
-            }
-            if(!(L.position[1]==col1)){
-                colsEqual = false;
-            }
-        }
-        if(rowsEqual){
-            String st = "";
+        if(letterPositions.size()==1){
+            //here, check words both horizontally and vertically
+            int row1 = letterPositions.get(0).position[0];
+            int col1 = letterPositions.get(0).position[1];
+
+            String st1 = "";
             int row = letterPositions.get(0).position[0];
-            for(int i=0;i<15;i++){
-                st += Character.toString(boardCopy[row][i]);
+            for (int i = 0; i < 15; i++) {
+                st1 += Character.toString(boardCopy[row][i]);
             }
-            word = stripHyphens(st, letterPositions.get(0).position[1]);
-        }
-        else if (colsEqual){
-            String st = "";
+            String word1 = stripHyphens(st1, letterPositions.get(0).position[1]);
+
+            String st2 = "";
             int col = letterPositions.get(0).position[1];
-            for(int i=0;i<15;i++){
-                st += Character.toString(boardCopy[i][col]);
+            for (int i = 0; i < 15; i++) {
+                st2 += Character.toString(boardCopy[i][col]);
             }
-            word = stripHyphens(st, letterPositions.get(0).position[0]);
+            String word2 = stripHyphens(st2, letterPositions.get(0).position[0]);
+
+            if(Validator.isValid(word1)){
+                return word1;
+            }
+            else if(Validator.isValid(word2)){
+                return word2;
+            }
+            else{
+                return word1+" or "+word2;
+            }
         }
-        else{
-            System.out.println("\nERROR in computeWord!!!\n");
+        else {
+            String word = "";
+            boolean rowsEqual = true;
+            boolean colsEqual = true;
+            int row1 = letterPositions.get(0).position[0];
+            int col1 = letterPositions.get(0).position[1];
+            for (LetterPosition L : letterPositions) {
+                if (!(L.position[0] == row1)) {
+                    rowsEqual = false;
+                }
+                if (!(L.position[1] == col1)) {
+                    colsEqual = false;
+                }
+            }
+            if (rowsEqual) {
+                String st = "";
+                int row = letterPositions.get(0).position[0];
+                for (int i = 0; i < 15; i++) {
+                    st += Character.toString(boardCopy[row][i]);
+                }
+                word = stripHyphens(st, letterPositions.get(0).position[1]);
+            } else if (colsEqual) {
+                String st = "";
+                int col = letterPositions.get(0).position[1];
+                for (int i = 0; i < 15; i++) {
+                    st += Character.toString(boardCopy[i][col]);
+                }
+                word = stripHyphens(st, letterPositions.get(0).position[0]);
+            } else {
+                System.out.println("\nERROR in computeWord!!!\n");
+            }
+            return word;
         }
-        return word;
     }
 
     public void initializeGame() throws FileNotFoundException{
         Validator.init();
         Scanner in = new Scanner(System.in);
-        System.out.println("Welcome to Daniel's Scrabble!\n");
-        System.out.print("How many players? (2-4) ");
-        int numOfPlayers = in.nextInt();
-        while(numOfPlayers < 2 || numOfPlayers > 4){
-            System.out.println("Number of players must be between 2 and 4. Try again. ");
-            numOfPlayers = in.nextInt();
+        System.out.println("Welcome to Daniel's single player Scrabble!\n");
+        System.out.print("Player: Enter name: ");
+        String playerName = in.next();
+        if(playerName.equals("")){
+            playerName = "Player1";
         }
-        System.out.println("\n* * * Game with "+numOfPlayers+" players will commence. * * *\n");
-        for(int i = 0; i<numOfPlayers; i++){
-            System.out.print("Player "+(i+1)+": Enter name: ");
-            String playerName = in.next();
-            if(playerName.equals("")){
-                playerName = "Player"+(i+1);
-            }
-            this.players.add(new Player(playerName));
-        }
+        this.p = new Player(playerName);
+        this.AIplayer = new AIPlayer();
     }
 
     /**
@@ -168,124 +189,144 @@ public class Game {
     public void play(){
         Scanner in = new Scanner(System.in);
         while(!gameOver){
-            for(Player p: players){
-                if(this.tilesBag.tilesLeft()==0){
-                    gameOver = true;
-                    break;
+
+            //AI plays
+            System.out.println("It's AI player's turn!");
+            //refill AI's's list of tiles;
+            AIplayer.addTiles(tilesBag.getTiles(7-AIplayer.gettilesLeft()));
+            System.out.println("\n"+this.board+"\n");
+            System.out.println("AI player's tiles: "+AIplayer.getTiles());
+            //all computation happens in AIPlaayer.play()
+            ArrayList<LetterPosition> AITiles = AIplayer.play(this.board);
+            if(AITiles.size()==0){
+                //AI player passes
+                AIplayer.pass();
+            }
+            else{
+                p.addScore(computeScore(AITiles));
+                addTiles(AITiles);
+                for (LetterPosition c : AITiles) {
+                    p.removeTile(c.letter);
                 }
-                //else
+                System.out.println("\nWord: " + computeWord(AITiles));
+                System.out.println(p.getName() + " scores " + computeScore(AITiles) + " points.");
+                System.out.println(p.getName() + "'s current total score is " + p.getScore() + " points.");
+            }
 
-                boolean pass = false;
+            //check if tiles left in tile bag. game ends when the bag runs out of tiles
+            if(this.tilesBag.tilesLeft()==0){
+                gameOver = true;
+                break;
+            }
 
-                //refill player's list of tiles
-                p.addTiles(tilesBag.getTiles(7-p.gettilesLeft()));
+            //HUMAN PLAYS
+            boolean pass = false;
 
-                //display current player's tiles and prompt him to play
-                System.out.println("\nIt's "+p.getName()+"'s turn!");
-                System.out.println("\n"+this.board+"\n");
-                System.out.println("Your tiles: "+p.getTiles());
-                System.out.print("Enter letters and locations OR \"pass\": ");
-                String line = in.nextLine();
-                if(line.toUpperCase().equals("PASS")){
-                    System.out.println("\n* * * "+p.getName()+" passes this turn. * * *\n");
+            //refill player's list of tiles
+            p.addTiles(tilesBag.getTiles(7-p.gettilesLeft()));
+
+            //display current player's tiles and prompt him to play
+            System.out.println("\nIt's "+p.getName()+"'s turn!");
+            System.out.println("\n"+this.board+"\n");
+            System.out.println("Your tiles: "+p.getTiles());
+            System.out.print("Enter letters and locations OR \"pass\": ");
+            String line = in.nextLine();
+            if(line.toUpperCase().equals("PASS")){
+                p.pass();
+            }
+            else {
+                ArrayList<LetterPosition> letterPositions = parseInput(line);
+                int errorcode = Validator.validate(letterPositions, this.board.getBoard(), p.getTiles());
+                if (errorcode != 0) {
+                    //loop until valid indexes given
+                    while (errorcode != 0) {
+                        pass = false;
+                        if (errorcode == 1) {
+                            System.out.print("Invalid indexes. Try again: ");
+                        } else if (errorcode == 2) {
+                            System.out.print("You must place your tiles on only one row or one column. Try again: ");
+                        } else if(errorcode == 3) {
+                            System.out.print("One or more of the indexes is occupied. Try again: ");
+                        }
+                        else if(errorcode == 4){
+                            System.out.print("You do not have enough tiles. Try again: ");
+                        }
+                        else{
+                            System.out.print("Your word must join the existing cluster Try again: ");
+                        }
+                        line = in.nextLine();
+                        if(line.toUpperCase().equals("PASS")){
+                            p.pass();
+                            break;
+                        }
+                        letterPositions = parseInput(line);
+                        errorcode = Validator.validate(letterPositions, this.board.getBoard(), p.getTiles());
+                    }
                 }
-                else {
-                    ArrayList<LetterPosition> letterPositions = parseInput(line);
-                    int errorcode = Validator.validate(letterPositions, this.board.getBoard(), p.getTiles());
-                    if (errorcode != 0) {
-                        //loop until valid indexes given
-                        while (errorcode != 0) {
+                //now valid input has been obtained
+                //use indexes to figure out the word and check if it's valid
+                String word = computeWord(letterPositions);
+                if(!Validator.isValid(word)) {
+                    //no valid words found
+                    //loop until valid word found
+                    while (!Validator.isValid(word)) {
+                        if(pass){
+                            break;
+                        }
+                        System.out.print("Invalid word or length is 1: "+word+". Try again.");
+                        line = in.nextLine();
+                        if (line.toUpperCase().equals("PASS")) {
+                            p.pass();
+                            break;
+                        } else {
                             pass = false;
-                            if (errorcode == 1) {
-                                System.out.print("Invalid indexes. Try again: ");
-                            } else if (errorcode == 2) {
-                                System.out.print("You must place your tiles on only one row or one column. Try again: ");
-
-                            } else if(errorcode == 3) {
-                                System.out.print("One or more of the indexes is occupied. Try again: ");
-                            }
-                            else if(errorcode == 4){
-                                System.out.print("You do not have enough tiles. Try again: ");
-                            }
-                            else{
-                                System.out.print("Your word must join the existing cluster Try again: ");
-                            }
-                            line = in.nextLine();
-                            if(line.equals("pass")){
-                                System.out.println("\n* * * "+p.getName()+" passes this turn. * * *\n");
-                                break;
-                            }
                             letterPositions = parseInput(line);
-                            errorcode = Validator.validate(letterPositions, this.board.getBoard(), p.getTiles());
-                        }
-                    }
-                    //now valid input has been obtained
-                    //use indexes to figure out the word and check if it's valid
-                    String word = computeWord(letterPositions);
-                    if(!Validator.isValid(word)) {
-                        //no valid words found
-                        //loop until valid word found
-                        while (!Validator.isValid(word)) {
-                            if(pass){
-                                break;
-                            }
-                            System.out.print("Invalid word or length is 1: "+word+". Try again.");
-                            line = in.nextLine();
-                            if (line.equals("pass")) {
-                                System.out.println("\n* * * " + p.getName() + " passes this turn. * * *\n");
-                                break;
-                            } else {
-                                pass = false;
-                                letterPositions = parseInput(line);
-                                int errorcode2 = Validator.validate(letterPositions, this.board.getBoard(), p.getTiles());
-                                if (errorcode2 != 0) {
-                                    //loop until valid indexes given
-                                    while (errorcode2 != 0) {
-                                        if (errorcode == 1) {
-                                            System.out.print("Invalid indexes. Try again: ");
-                                        } else if (errorcode == 2) {
-                                            System.out.print("You must place your tiles on only one row or one column. Try again: ");
-
-                                        } else if(errorcode == 3) {
-                                            System.out.print("One or more of the indexes is occupied. Try again: ");
-                                        }
-                                        else if(errorcode == 4){
-                                            System.out.print("You do not have enough tiles. Try again: ");
-                                        }
-                                        else{
-                                            System.out.print("Your word must join the existing cluster Try again: ");
-                                        }
-                                        line = in.nextLine();
-                                        if(line.equals("pass")){
-                                            System.out.println("\n* * * "+p.getName()+" passes this turn. * * *\n");
-                                            pass = true;
-                                            break;
-                                        }
-                                        letterPositions = parseInput(line);
-                                        errorcode2 = Validator.validate(letterPositions, this.board.getBoard(), p.getTiles());
+                            int errorcode2 = Validator.validate(letterPositions, this.board.getBoard(), p.getTiles());
+                            if (errorcode2 != 0) {
+                                //loop until valid indexes given
+                                while (errorcode2 != 0) {
+                                    if (errorcode == 1) {
+                                        System.out.print("Invalid indexes. Try again: ");
+                                    } else if (errorcode == 2) {
+                                        System.out.print("You must place your tiles on only one row or one column. Try again: ");
+                                    } else if(errorcode == 3) {
+                                        System.out.print("One or more of the indexes is occupied. Try again: ");
                                     }
+                                    else if(errorcode == 4){
+                                        System.out.print("You do not have enough tiles. Try again: ");
+                                    }
+                                    else{
+                                        System.out.print("Your word must join the existing cluster Try again: ");
+                                    }
+                                    line = in.nextLine();
+                                    if(line.toUpperCase().equals("PASS")){
+                                        p.pass();
+                                        pass = true;
+                                        break;
+                                    }
+                                    letterPositions = parseInput(line);
+                                    errorcode2 = Validator.validate(letterPositions, this.board.getBoard(), p.getTiles());
                                 }
-                                //now valid input has been obtained
-                                //use indexes to figure out the word and check if it's valid
-                                word = computeWord(letterPositions);
                             }
+                            //now valid input has been obtained
+                            //use indexes to figure out the word and check if it's valid
+                            word = computeWord(letterPositions);
                         }
                     }
+                }
 
-                    if(!pass) {
-                        firstWord = false;
-                        //SCORE PERPENDICULAR WORDS TOO//TODO
-                        ArrayList<LetterPosition> tiles = parseInput(line);
-                        p.addScore(computeScore(tiles));
-                        addTiles(tiles);
-                        for (LetterPosition c : tiles) {
-                            p.removeTile(c.letter);
-                        }
-                        System.out.println("\nWord: "+word);
-                        System.out.println(p.getName() + " scores " + computeScore(tiles) + " points.");
-                        System.out.println(p.getName() + "'s current total score is " + p.getScore() + " points.");
-
+                if(!pass) {
+                    firstWord = false;
+                    //SCORE PERPENDICULAR WORDS TOO//TODO
+                    ArrayList<LetterPosition> tiles = parseInput(line);
+                    p.addScore(computeScore(tiles));
+                    addTiles(tiles);
+                    for (LetterPosition c : tiles) {
+                        p.removeTile(c.letter);
                     }
+                    System.out.println("\nWord: " + word);
+                    System.out.println(p.getName() + " scores " + computeScore(tiles) + " points.");
+                    System.out.println(p.getName() + "'s current total score is " + p.getScore() + " points.");
                 }
             }
         }
@@ -297,16 +338,20 @@ public class Game {
         game.play();
         System.out.println("\n* * * GAME OVER * * *");
         //print winner
-        Player winner = game.players.get(0);
+
         System.out.println("\nScores:");
-        for(Player p:game.players){
-            //print all scores
-            System.out.println(p.getName()+": "+p.getScore());
-            if(p.getScore() > winner.getScore()){
-                winner = p;
-            }
+        System.out.println("AI: "+game.AIplayer.getScore());
+        System.out.println(game.p.getName()+": "+game.p.getScore());
+
+        if(game.AIplayer.getScore() > game.p.getScore()){
+            System.out.println("Winner: AI; score: "+game.AIplayer.getScore());
         }
-        System.out.println("\nWinner: "+winner.getName());
+        else if(game.AIplayer.getScore() < game.p.getScore()){
+            System.out.println("Winner: "+game.p.getName()+"; score: "+game.p.getScore());
+        }
+        else{
+            System.out.println("Tie. Score: "+game.p.getScore());
+        }
 
     }
 }
