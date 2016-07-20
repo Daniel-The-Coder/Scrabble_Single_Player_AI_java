@@ -56,7 +56,6 @@ public class Validator {
                 colsEqual = false;
             }
         }
-        System.out.println(tiles.size());
         //either rows are equal or cols are equal, not both
         if( ! ( ((!rowsEqual) && colsEqual) || (rowsEqual && (!colsEqual)) || letterPositions.size()==1 ) ){
             return 2;
