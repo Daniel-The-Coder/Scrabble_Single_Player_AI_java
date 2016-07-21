@@ -190,35 +190,6 @@ public class Game {
         Scanner in = new Scanner(System.in);
         while(!gameOver){
 
-            //AI plays
-            System.out.println("It's AI player's turn!");
-            //refill AI's's list of tiles;
-            AIplayer.addTiles(tilesBag.getTiles(7-AIplayer.gettilesLeft()));
-            System.out.println("\n"+this.board+"\n");
-            System.out.println("AI player's tiles: "+AIplayer.getTiles());
-            //all computation happens in AIPlaayer.play()
-            ArrayList<LetterPosition> AITiles = AIplayer.play(this.board);
-            if(AITiles.size()==0){
-                //AI player passes
-                AIplayer.pass();
-            }
-            else{
-                p.addScore(computeScore(AITiles));
-                addTiles(AITiles);
-                for (LetterPosition c : AITiles) {
-                    p.removeTile(c.letter);
-                }
-                System.out.println("\nWord: " + computeWord(AITiles));
-                System.out.println(p.getName() + " scores " + computeScore(AITiles) + " points.");
-                System.out.println(p.getName() + "'s current total score is " + p.getScore() + " points.");
-            }
-
-            //check if tiles left in tile bag. game ends when the bag runs out of tiles
-            if(this.tilesBag.tilesLeft()==0){
-                gameOver = true;
-                break;
-            }
-
             //HUMAN PLAYS
             boolean pass = false;
 
@@ -328,6 +299,35 @@ public class Game {
                     System.out.println(p.getName() + " scores " + computeScore(tiles) + " points.");
                     System.out.println(p.getName() + "'s current total score is " + p.getScore() + " points.");
                 }
+            }
+
+            //check if tiles left in tile bag. game ends when the bag runs out of tiles
+            if(this.tilesBag.tilesLeft()==0){
+                gameOver = true;
+                break;
+            }
+
+            //AI plays
+            System.out.println("It's AI player's turn!");
+            //refill AI's's list of tiles;
+            AIplayer.addTiles(tilesBag.getTiles(7-AIplayer.gettilesLeft()));
+            System.out.println("\n"+this.board+"\n");
+            System.out.println("AI player's tiles: "+AIplayer.getTiles());
+            //all computation happens in AIPlaayer.play()
+            ArrayList<LetterPosition> AITiles = AIplayer.play(this.board, AIplayer);
+            if(AITiles.size()==0){
+                //AI player passes
+                AIplayer.pass();
+            }
+            else{
+                p.addScore(computeScore(AITiles));
+                addTiles(AITiles);
+                for (LetterPosition c : AITiles) {
+                    p.removeTile(c.letter);
+                }
+                System.out.println("\nWord: " + computeWord(AITiles));
+                System.out.println(p.getName() + " scores " + computeScore(AITiles) + " points.");
+                System.out.println(p.getName() + "'s current total score is " + p.getScore() + " points.");
             }
         }
     }

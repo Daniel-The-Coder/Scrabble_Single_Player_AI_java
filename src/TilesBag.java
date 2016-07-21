@@ -8,7 +8,7 @@ import java.util.*;
 public class TilesBag {
 
     private ArrayList<Character> tiles;
-    private HashMap<Character, Integer> letterScores;
+    private static HashMap<Character, Integer> letterScores;
 
     public TilesBag() throws FileNotFoundException{
         this.letterScores = new HashMap<>();
@@ -51,7 +51,7 @@ public class TilesBag {
         }
     }
 
-    public int getLetterScore(char c){
+    public static int getLetterScore(char c){
         return letterScores.get(c);
     }
 

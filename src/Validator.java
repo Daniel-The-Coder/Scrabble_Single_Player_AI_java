@@ -22,6 +22,7 @@ public class Validator {
         }
     }
 
+
     /**
      * make sure that all indexes are valid - error code 1
      * make sure that all column values are equal or all row values are equal - error code 1
@@ -88,8 +89,10 @@ public class Validator {
         for(LetterPosition L:letterPositions){
             for(int i = L.position[0]-1;i<L.position[0]+2;i++){
                 for(int j = L.position[1]-1;j<L.position[1]+2;j++){
-                    if( ! (board[i][j] == '-') ){
-                        error5 = false;
+                    if(i>-1 && j>-1 && i<15 && j<15) {
+                        if (!(board[i][j] == '-')) {
+                            error5 = false;
+                        }
                     }
                 }
             }
@@ -120,6 +123,10 @@ public class Validator {
             return false;
         }
         return true;
+    }
+
+    public static ArrayList<String> getWords(){
+        return words;
     }
 }
 
