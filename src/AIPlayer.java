@@ -14,13 +14,92 @@ public class AIPlayer extends Player {
     public ArrayList<WordOption> dismantleBoard(Board board){
         ArrayList<WordOption> ar = new ArrayList<>();
 
+        char[][] brd = board.getBoard();
 
+        //horizontal
+        char orientation = 'H';
+        for(int i=0;i<15;i++){
+            ArrayList<Character> st= new ArrayList<>();
+            for(int j=0;j<15;j++){
+                st.add(brd[i][j]);
+            }
+            //get words out of the string st, find beginning and end indexes, and the number of empty usable
+            //spaces to the right and the left of the word
+
+            //ALGORITHM
+            //iterate through string
+            //When it changes fom letters to hyphens, the word is complete; add it to the list
+            String wrd = "";
+            int indexOfLastLetter = 0;
+            int beginIndex = 0;
+            int endIndex = 0;
+            int leftSpaces = 0;
+            int rightSpaces = 0;
+            int leftSpacesCount = 0;
+            int rightSpacesCount = 0;
+            boolean prevWasEmpty = true;
+            int idx = 0;
+            boolean firstWord = false;
+            for(char c:st){
+                //empty cell after one or more empty cells
+                if( c=='-' && prevWasEmpty){
+                    leftSpacesCount++;
+                    rightSpacesCount++;
+                }
+
+                //first empty cell after a word
+                else if( c=='-' && !prevWasEmpty ){
+                    prevWasEmpty = true;
+                    endIndex = idx;
+                    firstWord = false;
+
+                }
+
+                //first letter after empty cell
+                else if( c!='-' && prevWasEmpty ){
+                    prevWasEmpty = false;
+                    beginIndex = idx;
+                    wrd = Character.toString(c);
+                    rightSpaces = rightSpacesCount-1;
+                    rightSpacesCount = 0;
+                    if(firstWord){
+                        leftSpaces = leftSpacesCount;
+                    }
+                    else{
+                        leftSpaces = leftSpacesCount-1;
+                    }
+                    leftSpacesCount = 0;
+                    //ADD NEW WordOption OBJECT TO AR
+                    int[] begIdx = {i,beginIndex};
+                    int[] endIdx = {i,endIndex};
+                    ar.add(new WordOption(wrd,leftSpaces,rightSpaces,'H', begIdx, endIdx));
+                    leftSpacesCount = 0;
+                    rightSpacesCount = 0;
+                }
+
+                //a letter after one or more letters
+                else if( c!='-' && !prevWasEmpty ){
+                    wrd += Character.toString(c);
+                }
+
+                idx++;
+            }
+            if(prevWasEmpty){
+                rightSpaces = 0;
+                endIndex = 15;
+                int[] begIdx = {i,beginIndex};
+                int[] endIdx = {i,15};
+                ar.add(new WordOption(wrd,leftSpaces,rightSpaces,'H', begIdx, endIdx));
+            }
+
+        }
 
         return ar;
     }
 
     /**
-     * read the options list, decide what word to enter an return an arraylist of LetterPosition objects
+     * read the dismantled board, for each element, iterate through list of all words to find a word that can be formed
+     * based on the indexes, convert that to a letterpositions object and ad it to list to be returned
      * @return
      */
     public ArrayList<ArrayList<LetterPosition>> createOptions(ArrayList<WordOption> options, ArrayList<Character> tiles){
