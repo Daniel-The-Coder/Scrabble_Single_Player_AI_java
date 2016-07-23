@@ -64,7 +64,6 @@ public class AIPlayer extends Player {
                         int[] begIdx = {i, beginIndex};
                         int[] endIdx = {i, endIndex};
                         ar.add(new WordOption(wrd, leftSpaces, rightSpaces, 'H', begIdx, endIdx));
-                        System.out.println(wrd);
                         leftSpacesCount = 0;
                         rightSpacesCount = 0;
                     }
