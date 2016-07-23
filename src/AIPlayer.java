@@ -70,7 +70,7 @@ public class AIPlayer extends Player {
                     }
                     prevWasEmpty = false;
                     beginIndex = idx;
-                    wrd = Character.toString(c);
+                    wrd = Character.toString(Character.toUpperCase(c));
                     rightSpaces = rightSpacesCount-1;
                     rightSpacesCount = 0;
                     if(firstWord){
@@ -83,7 +83,7 @@ public class AIPlayer extends Player {
 
                 //a letter after one or more letters
                 else if( c!='-' && !prevWasEmpty ){
-                    wrd += Character.toString(c);
+                    wrd += Character.toString(Character.toUpperCase(c));
                 }
                 idx++;
             }
@@ -101,7 +101,9 @@ public class AIPlayer extends Player {
                 ar.add(new WordOption(wrd,leftSpaces,rightSpaces,'H', begIdx, endIdx));
             }
         }
-        System.out.println(ar);
+
+        //TODO VERTICAL
+
         return ar;
     }
 
@@ -113,16 +115,19 @@ public class AIPlayer extends Player {
     public ArrayList<ArrayList<LetterPosition>> createOptions(ArrayList<WordOption> options, ArrayList<Character> tiles){
         ArrayList<ArrayList<LetterPosition>> listOfOptions = new ArrayList<>();
         for(WordOption w:options){
-            ArrayList<LetterPosition> ar = new ArrayList<>();
             for(String word: Validator.getWords()){
+                ArrayList<LetterPosition> ar = new ArrayList<>();
                 //check if word contains w
-                if(word.contains(w.word.toLowerCase())){
+                //System.out.println(word);
+                if(word.contains(w.word) && !word.equals(w.word)){
+                    //System.out.println("Checkpoint 1");
                     //check if the board can accomodate word
-                    int i1 = word.indexOf(w.word.toLowerCase());
+                    int i1 = word.indexOf(w.word);
                     int i2 = i1 + w.word.length();
                     int charsBeginning = i1;
                     int charsEnd = word.length() - i2 + 1;
                     if(w.leftSpaces >= charsBeginning && w.rightSpaces>=charsEnd) {
+                        //System.out.println("Checkpoint 2");
                         //check if the player has enough letters to form the word
                         ArrayList<Character> wChars = new ArrayList<Character>();
                         for (char c : w.word.toCharArray()) {
@@ -133,45 +138,47 @@ public class AIPlayer extends Player {
                             lettersneeded.add(c);
                         }
                         for(char c:wChars){
-                            lettersneeded.remove(c);
+                            lettersneeded.remove(new Character(c));
                         }
                         //the arrayList of letters needed has been generated
                         //now see if player has the tiles
                         ArrayList<Character> lettersNeededCopy = new ArrayList<>(lettersneeded);
                         for(char c:tiles){
-                            lettersNeededCopy.remove(c);
+                            lettersNeededCopy.remove(new Character(c));
                         }
                         if(lettersNeededCopy.isEmpty()){
+                            //System.out.println("Checkpoint 3");
                             //the player has enough tiles
                             //now check the orientation an generate List of LetterPosition objects
                             int index = 0;
+                            //System.out.println("Letters Needed: "+lettersneeded);
                             if(w.orientation == 'H'){
-                                for(int i=w.beginIndex[1] - w.leftSpaces; i<w.endIndex[1] + w.rightSpaces; i++){
+                                //TOTO range of loop is wrong
+                                int lettersOnTheLeft = word.indexOf(w.word);
+                                int lettersOnTheRight = word.length() - w.word.length() - lettersOnTheLeft;
+                                for(int i=w.beginIndex[1] - lettersOnTheLeft; i<w.endIndex[1] + lettersOnTheRight ; i++){
+                                    //System.out.println(i);
                                     //if i is not on the word already on the board
                                     if(i<w.beginIndex[1] || i>=w.endIndex[1]){
+                                        //System.out.println("this");
                                         //beginIndex[0] because the row number is same
                                         int[] pos = {w.beginIndex[0],i};
+                                        //System.out.println(lettersneeded.get(index)+" "+ pos[1]);
                                         ar.add(new LetterPosition(lettersneeded.get(index), pos));
                                         index++;
                                     }
                                 }
                             }
                             else{//vertical
-                                for(int i=w.beginIndex[0] - w.leftSpaces; i<w.endIndex[0] + w.rightSpaces; i++){
-                                    //if i is not on the word already on the board
-                                    if(i<w.beginIndex[0] || i>=w.endIndex[0]){
-                                        //beginIndex[1] because the column number is same
-                                        int[] pos = {w.beginIndex[1],i};
-                                        ar.add(new LetterPosition(lettersneeded.get(index), pos));
-                                        index++;
-                                    }
-                                }
+                                //TODO
                             }
                         }
                     }
                 }
+                if(!ar.isEmpty()){
+                    listOfOptions.add(ar);
+                }
             }
-            listOfOptions.add(ar);
         }
 
         return listOfOptions;
@@ -194,6 +201,7 @@ public class AIPlayer extends Player {
      * @param board
      */
     public ArrayList<LetterPosition> play(Board board, Player player){
+        //System.out.println("daniel".contains("nie"));
         ArrayList<LetterPosition> ar = new ArrayList<>();
 
         ArrayList<ArrayList<LetterPosition>> options = createOptions(dismantleBoard(board), player.getTiles());
@@ -203,14 +211,16 @@ public class AIPlayer extends Player {
             scores.add(computeScore(op));
         }
 
-        int max = scores.get(0);
-        for(int i:scores){
-            if(i>max){
-                max = i;
+        if(!scores.isEmpty()) {
+            int max = scores.get(0);
+            for (int i : scores) {
+                if (i > max) {
+                    max = i;
+                }
             }
-        }
 
-        ar = options.get(scores.indexOf(max));
+            ar = options.get(scores.indexOf(max));
+        }
 
         return ar;
     }

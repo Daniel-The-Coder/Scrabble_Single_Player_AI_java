@@ -176,10 +176,10 @@ public class Game {
         ArrayList<LetterPosition> ar = new ArrayList<>();
         List<String> lineList = Arrays.asList(line.split(" "));
         for(int i=0;i<lineList.size();i+=2){
-            char letter = lineList.get(i).charAt(0);
+            char letter = Character.toUpperCase(lineList.get(i).charAt(0));
             String position = lineList.get(i+1);
             int row = Integer.parseInt(position.substring(0, position.length()-1)) - 1;
-            int col = letterToNum(position.charAt(position.length()-1)) - 1;
+            int col = letterToNum(Character.toUpperCase(position.charAt(position.length()-1))) - 1;
             int[] pos = {row,col};
             ar.add(new LetterPosition(letter, pos));
         }
@@ -308,7 +308,7 @@ public class Game {
             }
 
             //AI plays
-            System.out.println("It's AI player's turn!");
+            System.out.println("\n\nIt's AI player's turn!");
             //refill AI's's list of tiles;
             AIplayer.addTiles(tilesBag.getTiles(7-AIplayer.gettilesLeft()));
             System.out.println("\n"+this.board+"\n");
@@ -320,14 +320,14 @@ public class Game {
                 AIplayer.pass();
             }
             else{
-                p.addScore(computeScore(AITiles));
+                AIplayer.addScore(computeScore(AITiles));
                 addTiles(AITiles);
                 for (LetterPosition c : AITiles) {
                     p.removeTile(c.letter);
                 }
                 System.out.println("\nWord: " + computeWord(AITiles));
-                System.out.println(p.getName() + " scores " + computeScore(AITiles) + " points.");
-                System.out.println(p.getName() + "'s current total score is " + p.getScore() + " points.");
+                System.out.println("AI Player scores " + computeScore(AITiles) + " points.");
+                System.out.println("AI Player's current total score is " +AIplayer.getScore() + " points.");
             }
         }
     }
