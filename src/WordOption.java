@@ -17,4 +17,10 @@ public class WordOption {
         this.beginIndex = beginIndex;
         this.endIndex = endIndex;
     }
+
+    @Override
+    public String toString(){
+        return "\nWord: "+word+"; leftSpaces: "+leftSpaces+"; rightSpaces: "+rightSpaces+"; Orientation: "+orientation+
+                "; Index: ("+beginIndex[0]+", "+beginIndex[1]+") - ("+endIndex[0]+", "+endIndex[1]+")";
+    }
 }

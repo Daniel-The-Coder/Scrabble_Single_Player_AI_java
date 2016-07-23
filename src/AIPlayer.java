@@ -39,7 +39,7 @@ public class AIPlayer extends Player {
             int rightSpacesCount = 0;
             boolean prevWasEmpty = true;
             int idx = 0;
-            boolean firstWord = false;
+            boolean firstWord = true;
             for(char c:st){
                 //empty cell after one or more empty cells
                 if( c=='-' && prevWasEmpty){
@@ -49,6 +49,8 @@ public class AIPlayer extends Player {
 
                 //first empty cell after a word
                 else if( c=='-' && !prevWasEmpty ){
+                    rightSpacesCount = 1;
+                    leftSpacesCount = 1;
                     prevWasEmpty = true;
                     endIndex = idx;
                     firstWord = false;
@@ -57,6 +59,15 @@ public class AIPlayer extends Player {
 
                 //first letter after empty cell
                 else if( c!='-' && prevWasEmpty ){
+                    if(!wrd.equals("")) {
+                        //ADD NEW WordOption OBJECT TO AR
+                        int[] begIdx = {i, beginIndex};
+                        int[] endIdx = {i, endIndex};
+                        ar.add(new WordOption(wrd, leftSpaces, rightSpaces, 'H', begIdx, endIdx));
+                        System.out.println(wrd);
+                        leftSpacesCount = 0;
+                        rightSpacesCount = 0;
+                    }
                     prevWasEmpty = false;
                     beginIndex = idx;
                     wrd = Character.toString(c);
@@ -68,32 +79,29 @@ public class AIPlayer extends Player {
                     else{
                         leftSpaces = leftSpacesCount-1;
                     }
-                    leftSpacesCount = 0;
-                    //ADD NEW WordOption OBJECT TO AR
-                    int[] begIdx = {i,beginIndex};
-                    int[] endIdx = {i,endIndex};
-                    ar.add(new WordOption(wrd,leftSpaces,rightSpaces,'H', begIdx, endIdx));
-                    leftSpacesCount = 0;
-                    rightSpacesCount = 0;
                 }
 
                 //a letter after one or more letters
                 else if( c!='-' && !prevWasEmpty ){
                     wrd += Character.toString(c);
                 }
-
                 idx++;
             }
-            if(prevWasEmpty){
+            if(!prevWasEmpty && !wrd.equals("")){
                 rightSpaces = 0;
                 endIndex = 15;
                 int[] begIdx = {i,beginIndex};
-                int[] endIdx = {i,15};
+                int[] endIdx = {i,endIndex};
                 ar.add(new WordOption(wrd,leftSpaces,rightSpaces,'H', begIdx, endIdx));
             }
-
+            else if(prevWasEmpty && !wrd.equals("")){
+                int[] begIdx = {i,beginIndex};
+                int[] endIdx = {i,endIndex};
+                rightSpaces = rightSpacesCount;
+                ar.add(new WordOption(wrd,leftSpaces,rightSpaces,'H', begIdx, endIdx));
+            }
         }
-
+        System.out.println(ar);
         return ar;
     }
 
