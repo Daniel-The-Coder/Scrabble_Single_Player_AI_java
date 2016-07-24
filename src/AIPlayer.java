@@ -63,14 +63,12 @@ public class AIPlayer extends Player {
                         //ADD NEW WordOption OBJECT TO AR
                         int[] begIdx = {i, beginIndex};
                         int[] endIdx = {i, endIndex};
+                        rightSpaces = rightSpacesCount - 1;
                         ar.add(new WordOption(wrd, leftSpaces, rightSpaces, 'H', begIdx, endIdx));
-                        leftSpacesCount = 0;
-                        rightSpacesCount = 0;
                     }
                     prevWasEmpty = false;
                     beginIndex = idx;
                     wrd = Character.toString(Character.toUpperCase(c));
-                    rightSpaces = rightSpacesCount-1;
                     rightSpacesCount = 0;
                     if(firstWord){
                         leftSpaces = leftSpacesCount;
@@ -102,7 +100,7 @@ public class AIPlayer extends Player {
         }
 
         //TODO VERTICAL
-
+        //System.out.println(ar);
         return ar;
     }
 
