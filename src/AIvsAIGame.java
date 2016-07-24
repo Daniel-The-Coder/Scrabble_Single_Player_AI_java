@@ -197,11 +197,11 @@ public class AIvsAIGame {
         while(!gameOver){
 
             //AI 1 plays
-            System.out.println("\n\nIt's AI player's turn!");
+            System.out.println("\n\nIt's AI player 1's turn!");
             //refill AI's's list of tiles;
             AIplayer1.addTiles(tilesBag.getTiles(7-AIplayer1.gettilesLeft()));
             System.out.println("\n"+this.board+"\n");
-            System.out.println("AI player's tiles: "+AIplayer1.getTiles());
+            System.out.println("AI player 1's tiles: "+AIplayer1.getTiles());
             //all computation happens in AIPlaayer.play()
             ArrayList<LetterPosition> AITiles1 = AIplayer1.play(this.board, AIplayer1);
             if(AITiles1.size()==0){
@@ -215,8 +215,8 @@ public class AIvsAIGame {
                     AIplayer1.removeTile(c.letter);
                 }
                 System.out.println("\nWord: " + computeWord(AITiles1));
-                System.out.println("AI Player scores " + computeScore(AITiles1) + " points.");
-                System.out.println("AI Player's current total score is " +AIplayer1.getScore() + " points.");
+                System.out.println("AI Player 1 scores " + computeScore(AITiles1) + " points.");
+                System.out.println("AI Player 1's current total score is " +AIplayer1.getScore() + " points.");
                 System.out.println("Tiles left: "+tilesBag.tilesLeft());
             }
 
@@ -227,11 +227,11 @@ public class AIvsAIGame {
             }
 
             //AI 2 plays
-            System.out.println("\n\nIt's AI player's turn!");
+            System.out.println("\n\nIt's AI player 2's turn!");
             //refill AI's's list of tiles;
             AIplayer2.addTiles(tilesBag.getTiles(7-AIplayer2.gettilesLeft()));
             System.out.println("\n"+this.board+"\n");
-            System.out.println("AI player's tiles: "+AIplayer2.getTiles());
+            System.out.println("AI player 2's tiles: "+AIplayer2.getTiles());
             //all computation happens in AIPlaayer.play()
             ArrayList<LetterPosition> AITiles2 = AIplayer2.play(this.board, AIplayer2);
             if(AITiles2.size()==0){
@@ -245,11 +245,12 @@ public class AIvsAIGame {
                     AIplayer2.removeTile(c.letter);
                 }
                 System.out.println("\nWord: " + computeWord(AITiles2));
-                System.out.println("AI Player scores " + computeScore(AITiles2) + " points.");
-                System.out.println("AI Player's current total score is " +AIplayer2.getScore() + " points.");
+                System.out.println("AI Player 2 scores " + computeScore(AITiles2) + " points.");
+                System.out.println("AI Player 2's current total score is " +AIplayer2.getScore() + " points.");
                 System.out.println("Tiles left: "+tilesBag.tilesLeft());
             }
         }
+        System.out.println("\n"+this.board+"\n");
     }
 
     public static void main(String[] args) throws FileNotFoundException{
