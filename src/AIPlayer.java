@@ -6,6 +6,12 @@ import java.util.Arrays;
  */
 public class AIPlayer extends Player {
 
+    public AIPlayer(String name){
+        super();
+        this.setName(name);
+    }
+
+
     public AIPlayer(){
         super();
 
@@ -287,31 +293,126 @@ public class AIPlayer extends Player {
      * @param board
      */
     public ArrayList<LetterPosition> play(Board board, Player player){
-        //System.out.println("daniel".contains("nie"));
         ArrayList<LetterPosition> ar = new ArrayList<>();
 
-        ArrayList<ArrayList<LetterPosition>> options = createOptions(dismantleBoard(board), player.getTiles());
-
-        ArrayList<Integer> scores = new ArrayList<>();
-        for(ArrayList<LetterPosition> op:options){
-            scores.add(computeScore(op));
-        }
-
-        if(!scores.isEmpty()) {
-            int max = scores.get(0);
-            for (int i : scores) {
-                if (i > max) {
-                    max = i;
-                }
+        if(!isEmpty(board.getBoard())) {
+            ArrayList<ArrayList<LetterPosition>> options = createOptions(dismantleBoard(board), player.getTiles());
+            ArrayList<Integer> scores = new ArrayList<>();
+            for (ArrayList<LetterPosition> op : options) {
+                scores.add(computeScore(op));
             }
-
-            ar = options.get(scores.indexOf(max));
+            if (!scores.isEmpty()) {
+                int max = scores.get(0);
+                for (int i : scores) {
+                    if (i > max) {
+                        max = i;
+                    }
+                }
+                ar = options.get(scores.indexOf(max));
+            }
+        }
+        else{
+            ArrayList<String> candidates = findWords(player.getTiles());
+            ArrayList<Integer> scores = new ArrayList<>();
+            for (String word : candidates) {
+                scores.add(scoreWord(word));
+            }
+            if (!scores.isEmpty()) {
+                int max = scores.get(0);
+                for (int i : scores) {
+                    if (i > max) {
+                        max = i;
+                    }
+                }
+                ar = toLetterPositions(candidates.get(scores.indexOf(max)));
+            }
         }
 
         return ar;
     }
 
+    /**
+     * check if the board is empty (only hyphens)
+     * @param board
+     * @return
+     */
+    public boolean isEmpty(char[][] board){
+        for(int i=0;i<15;i++){
+            for(int j=0;j<15;j++){
+                if(board[i][j]!='-'){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public ArrayList<String> findWords(ArrayList<Character> tiles){
+        ArrayList<String> ar = new ArrayList<>();
+        for(String word:Validator.getWords()){
+            if(word.length() <= tiles.size()){
+                word = word.toUpperCase();
+                //convert word to arrayList of characters
+                ArrayList<Character> letters = new ArrayList<>();
+                for(int i=0;i<word.length();i++){
+                    letters.add(word.charAt(i));
+                }
+                //create a copy of the word
+                ArrayList<Character> wordCopy = new ArrayList<>(letters);
+                for(char c:tiles){
+                    wordCopy.remove(new Character(c));
+                }
+                if(wordCopy.isEmpty()){
+                    ar.add(word);
+                }
+
+            }
+        }
+        return ar;
+    }
+
+    /**
+     * calculate the score for a word
+     * @param word
+     * @return
+     */
+    public int scoreWord(String word){
+        int score = 0;
+        word = word.toUpperCase();
+        ArrayList<Character> tiles = new ArrayList<>();
+        for(int i=0;i<word.length();i++){
+            tiles.add(word.charAt(i));
+        }
+
+        for(char c:tiles){
+            score += TilesBag.getLetterScore(c);
+        }
+        if(tiles.size() == 7){
+            //BONUS
+            score += 50;
+        }
+        return score;
+    }
+
+    /**
+     * create a list of LetterPosition objects
+     * choose position of the word in the 8th row (index 7) and from the 4th column (index 3)
+     * @param word
+     * @return
+     */
+    public ArrayList<LetterPosition> toLetterPositions(String word){
+        ArrayList<LetterPosition> ar = new ArrayList<>();
+        word = word.toUpperCase();
+        for(int i=0;i<word.length();i++){
+            int[] pos = {7,i+3};
+            ar.add(new LetterPosition(word.charAt(i),pos));
+        }
+        return ar;
+    }
+
+
 }
+
 
 /*
 ALGORITHM

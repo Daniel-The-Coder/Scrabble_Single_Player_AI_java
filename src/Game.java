@@ -57,15 +57,25 @@ public class Game {
      */
     public String stripHyphens(String st, int index){
         String str = "";
-        int i1 = index;
-        int i2 = index-1;
+        int i1 = index+1;
+        int i2 = index;
         while(!(st.charAt(i1)=='-')){
             str += st.substring(i1,i1+1); // add to the end
-            i1+=1;
+            if(i1<14) {
+                i1 += 1;
+            }
+            else{
+                break;
+            }
         }
         while(!(st.charAt(i2)=='-')){
             str = st.substring(i2,i2+1) + str; // add to the beginning
-            i2-=1;
+            if(i2>0) {
+                i2 -= 1;
+            }
+            else{
+                break;
+            }
         }
         return str;
     }
@@ -298,6 +308,7 @@ public class Game {
                     System.out.println("\nWord: " + word);
                     System.out.println(p.getName() + " scores " + computeScore(tiles) + " points.");
                     System.out.println(p.getName() + "'s current total score is " + p.getScore() + " points.");
+                    System.out.println("Tiles left: "+tilesBag.tilesLeft());
                 }
             }
 
@@ -328,6 +339,7 @@ public class Game {
                 System.out.println("\nWord: " + computeWord(AITiles));
                 System.out.println("AI Player scores " + computeScore(AITiles) + " points.");
                 System.out.println("AI Player's current total score is " +AIplayer.getScore() + " points.");
+                System.out.println("Tiles left: "+tilesBag.tilesLeft());
             }
         }
     }

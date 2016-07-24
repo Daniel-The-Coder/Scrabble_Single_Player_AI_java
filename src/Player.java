@@ -55,4 +55,8 @@ public class Player {
     public void pass(){
         System.out.println("\n* * * "+this.getName()+" passes this turn. * * *\n");
     }
+
+    public void setName(String name){
+        this.name = name;
+    }
 }
