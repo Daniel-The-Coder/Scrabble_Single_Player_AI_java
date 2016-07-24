@@ -17,7 +17,6 @@ public class AIPlayer extends Player {
         char[][] brd = board.getBoard();
 
         //horizontal
-        char orientation = 'H';
         for(int i=0;i<15;i++){
             ArrayList<Character> st= new ArrayList<>();
             for(int j=0;j<15;j++){
@@ -30,7 +29,6 @@ public class AIPlayer extends Player {
             //iterate through string
             //When it changes fom letters to hyphens, the word is complete; add it to the list
             String wrd = "";
-            int indexOfLastLetter = 0;
             int beginIndex = 0;
             int endIndex = 0;
             int leftSpaces = 0;
@@ -99,7 +97,86 @@ public class AIPlayer extends Player {
             }
         }
 
-        //TODO VERTICAL
+        //VERTICAL
+        for(int i=0;i<15;i++){
+            ArrayList<Character> st= new ArrayList<>();
+            for(int j=0;j<15;j++){
+                st.add(brd[j][i]);
+            }
+            //get words out of the string st, find beginning and end indexes, and the number of empty usable
+            //spaces to the right and the left of the word
+
+            //ALGORITHM
+            //iterate through string
+            //When it changes fom letters to hyphens, the word is complete; add it to the list
+            String wrd = "";
+            int beginIndex = 0;
+            int endIndex = 0;
+            int leftSpaces = 0;
+            int rightSpaces = 0;
+            int leftSpacesCount = 0;
+            int rightSpacesCount = 0;
+            boolean prevWasEmpty = true;
+            int idx = 0;
+            boolean firstWord = true;
+            for(char c:st){
+                //empty cell after one or more empty cells
+                if( c=='-' && prevWasEmpty){
+                    leftSpacesCount++;
+                    rightSpacesCount++;
+                }
+
+                //first empty cell after a word
+                else if( c=='-' && !prevWasEmpty ){
+                    rightSpacesCount = 1;
+                    leftSpacesCount = 1;
+                    prevWasEmpty = true;
+                    endIndex = idx;
+                    firstWord = false;
+
+                }
+
+                //first letter after empty cell
+                else if( c!='-' && prevWasEmpty ){
+                    if(!wrd.equals("")) {
+                        //ADD NEW WordOption OBJECT TO AR
+                        int[] begIdx = {beginIndex,i};
+                        int[] endIdx = {endIndex,i};
+                        rightSpaces = rightSpacesCount - 1;
+                        ar.add(new WordOption(wrd, leftSpaces, rightSpaces, 'V', begIdx, endIdx));
+                    }
+                    prevWasEmpty = false;
+                    beginIndex = idx;
+                    wrd = Character.toString(Character.toUpperCase(c));
+                    rightSpacesCount = 0;
+                    if(firstWord){
+                        leftSpaces = leftSpacesCount;
+                    }
+                    else{
+                        leftSpaces = leftSpacesCount-1;
+                    }
+                }
+
+                //a letter after one or more letters
+                else if( c!='-' && !prevWasEmpty ){
+                    wrd += Character.toString(Character.toUpperCase(c));
+                }
+                idx++;
+            }
+            if(!prevWasEmpty && !wrd.equals("")){
+                rightSpaces = 0;
+                endIndex = 15;
+                int[] begIdx = {beginIndex,i};
+                int[] endIdx = {endIndex,i};
+                ar.add(new WordOption(wrd,leftSpaces,rightSpaces,'V', begIdx, endIdx));
+            }
+            else if(prevWasEmpty && !wrd.equals("")){
+                int[] begIdx = {beginIndex,i};
+                int[] endIdx = {endIndex,i};
+                rightSpaces = rightSpacesCount;
+                ar.add(new WordOption(wrd,leftSpaces,rightSpaces,'V', begIdx, endIdx));
+            }
+        }
         //System.out.println(ar);
         return ar;
     }
@@ -150,7 +227,6 @@ public class AIPlayer extends Player {
                             int index = 0;
                             //System.out.println("Letters Needed: "+lettersneeded);
                             if(w.orientation == 'H'){
-                                //TOTO range of loop is wrong
                                 int lettersOnTheLeft = word.indexOf(w.word);
                                 int lettersOnTheRight = word.length() - w.word.length() - lettersOnTheLeft;
                                 for(int i=w.beginIndex[1] - lettersOnTheLeft; i<w.endIndex[1] + lettersOnTheRight ; i++){
@@ -167,7 +243,20 @@ public class AIPlayer extends Player {
                                 }
                             }
                             else{//vertical
-                                //TODO
+                                int lettersAbove = word.indexOf(w.word);
+                                int lettersBelow = word.length() - w.word.length() - lettersAbove;
+                                for(int i=w.beginIndex[0] - lettersAbove; i<w.endIndex[0] + lettersBelow ; i++){
+                                    //System.out.println(i);
+                                    //if i is not on the word already on the board
+                                    if(i<w.beginIndex[0] || i>=w.endIndex[0]){
+                                        //System.out.println("this");
+                                        //beginIndex[1] because the column number is same
+                                        int[] pos = {i,w.beginIndex[1]};
+                                        //System.out.println(lettersneeded.get(index)+" "+ pos[1]);
+                                        ar.add(new LetterPosition(lettersneeded.get(index), pos));
+                                        index++;
+                                    }
+                                }
                             }
                         }
                     }

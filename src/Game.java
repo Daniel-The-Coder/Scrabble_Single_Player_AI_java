@@ -323,7 +323,7 @@ public class Game {
                 AIplayer.addScore(computeScore(AITiles));
                 addTiles(AITiles);
                 for (LetterPosition c : AITiles) {
-                    p.removeTile(c.letter);
+                    AIplayer.removeTile(c.letter);
                 }
                 System.out.println("\nWord: " + computeWord(AITiles));
                 System.out.println("AI Player scores " + computeScore(AITiles) + " points.");

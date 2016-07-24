@@ -36,7 +36,7 @@ public class Validator {
      * @return
      */
     public static int validate(ArrayList<LetterPosition> letterPositions, char[][] board, ArrayList<Character> tiles){
-/*
+
         //make sure that all indexes are valid - error code 1
         for(LetterPosition L:letterPositions){
             if(L.position[0]<0 || L.position[0]>14 || L.position[1]<0 || L.position[1]>14){
@@ -100,7 +100,7 @@ public class Validator {
         if(error5 && !Game.firstWord){
             return 5;
         }
-*/
+
         //valid - code 0
         return 0;
     }
