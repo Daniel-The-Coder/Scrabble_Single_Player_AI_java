@@ -6,6 +6,7 @@ import java.util.Scanner;
 
 /**
  * Created by Lord Daniel on 7/24/2016.
+ * Here, two AI players play against each other.
  */
 public class AIvsAIGame {
 

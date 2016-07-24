@@ -3,6 +3,7 @@ import java.util.*;
 
 /**
  * Created by Lord Daniel on 7/16/2016.
+ * Here, a human player plays against an AI player.
  */
 public class Game {
     public boolean gameOver;
